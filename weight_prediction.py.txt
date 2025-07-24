@@ -1,0 +1,129 @@
+import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
+
+def calculate_bee(sex, weight, height, age):
+    **if sex == "male":**
+
+        **return 66.5 + (13.75 \* weight) + (5.003 \* height) - (6.775 \* age)**
+
+    **else:**
+
+        **return 655.1 + (9.563 \* weight) + (1.850 \* height) - (4.676 \* age)**
+
+
+
+
+def main():
+    **# 入力をコマンドラインから受け取る**
+
+    **sex = input("性別を入力してください（male/female）: ").strip().lower()**
+
+    **height = float(input("身長(cm): "))**
+
+    **age = int(input("年齢: "))**
+
+    **initial\_weight = float(input("現在の体重(kg): "))**
+
+    **intake\_kcal = float(input("摂取カロリー(kcal/日): "))**
+
+    **activity\_factor = float(input("活動係数（例：1.2）: "))**
+
+    **stress\_factor = float(input("ストレス係数（例：1.0）: "))**
+
+    **days = int(input("何日間予測しますか？（例：100）: "))**
+
+    **target\_day = int(input("何日後の体重を知りたいですか？（例：30）: "))**
+
+    **target\_weight = float(input("目標体重（kg）: "))**
+
+
+
+    **bee = calculate\_bee(sex, initial\_weight, height, age)**
+
+    **et = bee \* activity\_factor \* stress\_factor**
+
+    **surplus = intake\_kcal - et**
+
+    **daily\_gain = surplus / 7000  # kcalあたり1kg体重増加換算**
+
+
+
+    **weights = \[initial\_weight]**
+
+    **for i in range(days):**
+
+        **weights.append(weights\[-1] + daily\_gain)**
+
+
+
+    **# 日付計算**
+
+    **today = datetime.today()**
+
+    **dates = \[today + timedelta(days=i) for i in range(days + 1)]**
+
+
+
+    **# 結果表示**
+
+    **print("\\n--- 結果 ---")**
+
+    **target\_date = today + timedelta(days=target\_day)**
+
+    **print(f"{target\_day}日後（{target\_date.strftime('%Y-%m-%d')}）の予測体重: {weights\[target\_day]:.2f} kg")**
+
+
+
+    **exceed\_day = next((i for i, w in enumerate(weights) if w >= target\_weight), None)**
+
+    **if exceed\_day is not None:**
+
+        **exceed\_date = today + timedelta(days=exceed\_day)**
+
+        **print(f"{target\_weight}kgを超えるのは: {exceed\_date.strftime('%Y-%m-%d')}（{exceed\_day}日目）")**
+
+    **else:**
+
+        **print(f"{target\_weight}kgには到達しません。")**
+
+
+
+    **# グラフ表示**
+
+    **try:**
+
+        **plt.figure(figsize=(10, 5))**
+
+        **plt.plot(dates, weights, label="予測体重", color='blue')**
+
+        **plt.axhline(target\_weight, color='red', linestyle='--', label=f"目標 {target\_weight}kg")**
+
+        **plt.xlabel("日付")**
+
+        **plt.ylabel("体重 (kg)")**
+
+        **plt.title("体重予測グラフ")**
+
+        **plt.legend()**
+
+        **plt.grid(True)**
+
+        **plt.xticks(rotation=45)**
+
+        **plt.tight\_layout()**
+
+        **plt.show()**
+
+    **except Exception as e:**
+
+        **print("グラフの表示に失敗しました。matplotlibが正しくインストールされているか確認してください。")**
+
+        **print(f"エラー内容: {e}")**
+
+
+
+
+if __name__ == "__main__":
+    **main()**
+
+
