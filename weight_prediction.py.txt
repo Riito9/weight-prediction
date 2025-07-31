@@ -1,129 +1,53 @@
 import matplotlib.pyplot as plt
-from datetime import datetime, timedelta
-
-def calculate_bee(sex, weight, height, age):
-    **if sex == "male":**
-
-        **return 66.5 + (13.75 \* weight) + (5.003 \* height) - (6.775 \* age)**
-
-    **else:**
-
-        **return 655.1 + (9.563 \* weight) + (1.850 \* height) - (4.676 \* age)**
-
-
-
+import csv
 
 def main():
-    **# 入力をコマンドラインから受け取る**
+    # 入力パラメータ [性別, 初期体重, 身長, 年齢, 活動係数, ストレス係数, 摂取カロリー, 予測日数]
+    params = ["M", 70.0, 175.0, 30.0, 1.2, 1.0, 2000.0, 30]
+    sex, W, H, Y, A, S, Ei, days = params
 
-    **sex = input("性別を入力してください（male/female）: ").strip().lower()**
+    # 性別の検証
+    if sex.upper() not in ["M", "F"]:
+        print("Invalid input for sex. Please enter 'M' or 'F'.")
+        return
 
-    **height = float(input("身長(cm): "))**
+    weights = [W]
+    for i in range(days):
+        W_current = weights[-1]
 
-    **age = int(input("年齢: "))**
+        # Etの計算
+        if sex.upper() == "M":
+            Et = (13.397 * W_current + 4.799 * H - 5.677 * Y + 88.362) * A * S
+        else:
+            Et = (9.247 * W_current + 3.098 * H - 4.33 * Y + 447.593) * A * S
 
-    **initial\_weight = float(input("現在の体重(kg): "))**
+        # 体重更新
+        W_next = W_current + (Ei - Et) / 7000
+        weights.append(W_next)
 
-    **intake\_kcal = float(input("摂取カロリー(kcal/日): "))**
+    # 最終体重出力
+    print(f"\nPredicted weight on day {days}: {weights[-1]:.2f} kg")
 
-    **activity\_factor = float(input("活動係数（例：1.2）: "))**
+    # CSV出力
+    csv_filename = "weight_prediction.csv"
+    with open(csv_filename, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(['Day', 'Weight(kg)'])
+        for day, weight in enumerate(weights):
+            writer.writerow([day, round(weight, 2)])
 
-    **stress\_factor = float(input("ストレス係数（例：1.0）: "))**
+    print(f"Results saved to {csv_filename}")
 
-    **days = int(input("何日間予測しますか？（例：100）: "))**
-
-    **target\_day = int(input("何日後の体重を知りたいですか？（例：30）: "))**
-
-    **target\_weight = float(input("目標体重（kg）: "))**
-
-
-
-    **bee = calculate\_bee(sex, initial\_weight, height, age)**
-
-    **et = bee \* activity\_factor \* stress\_factor**
-
-    **surplus = intake\_kcal - et**
-
-    **daily\_gain = surplus / 7000  # kcalあたり1kg体重増加換算**
-
-
-
-    **weights = \[initial\_weight]**
-
-    **for i in range(days):**
-
-        **weights.append(weights\[-1] + daily\_gain)**
-
-
-
-    **# 日付計算**
-
-    **today = datetime.today()**
-
-    **dates = \[today + timedelta(days=i) for i in range(days + 1)]**
-
-
-
-    **# 結果表示**
-
-    **print("\\n--- 結果 ---")**
-
-    **target\_date = today + timedelta(days=target\_day)**
-
-    **print(f"{target\_day}日後（{target\_date.strftime('%Y-%m-%d')}）の予測体重: {weights\[target\_day]:.2f} kg")**
-
-
-
-    **exceed\_day = next((i for i, w in enumerate(weights) if w >= target\_weight), None)**
-
-    **if exceed\_day is not None:**
-
-        **exceed\_date = today + timedelta(days=exceed\_day)**
-
-        **print(f"{target\_weight}kgを超えるのは: {exceed\_date.strftime('%Y-%m-%d')}（{exceed\_day}日目）")**
-
-    **else:**
-
-        **print(f"{target\_weight}kgには到達しません。")**
-
-
-
-    **# グラフ表示**
-
-    **try:**
-
-        **plt.figure(figsize=(10, 5))**
-
-        **plt.plot(dates, weights, label="予測体重", color='blue')**
-
-        **plt.axhline(target\_weight, color='red', linestyle='--', label=f"目標 {target\_weight}kg")**
-
-        **plt.xlabel("日付")**
-
-        **plt.ylabel("体重 (kg)")**
-
-        **plt.title("体重予測グラフ")**
-
-        **plt.legend()**
-
-        **plt.grid(True)**
-
-        **plt.xticks(rotation=45)**
-
-        **plt.tight\_layout()**
-
-        **plt.show()**
-
-    **except Exception as e:**
-
-        **print("グラフの表示に失敗しました。matplotlibが正しくインストールされているか確認してください。")**
-
-        **print(f"エラー内容: {e}")**
-
-
-
+    # グラフ表示
+    plt.figure(figsize=(10, 5))
+    plt.plot(range(days + 1), weights, marker='o', label='Predicted Weight')
+    plt.xlabel("Day")
+    plt.ylabel("Weight (kg)")
+    plt.title("Predicted Weight Over Time")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
 
 if __name__ == "__main__":
-    **main()**
-
-
+    main()
